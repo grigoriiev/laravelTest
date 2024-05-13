@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  web1:
+    container_name: web1
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    environment:
+      XDEBUG_CONFIG: remote_host=host.docker.internal
+    ports:
+      - "80:80"
+      - "500:443"
+    volumes:
+      - ./:/var/www
+    links:
+      - db2
+    depends_on:
+      - db2
+  db2:
+      image: postgres
+      ports:
+          - "6543:5432"
+      volumes:
+          - postgres-data-12:/var/lib/postgresql/data
+      restart: unless-stopped
+      environment:
+          POSTGRES_USER: ${DB_USERNAME}
+          POSTGRES_PASSWORD: ${DB_PASSWORD}
+          POSTGRES_DB: ${DB_DATABASE}
+  adminer:
+      image: adminer
+      ports:
+          - "8089:8080"
+      restart: unless-stopped
+      depends_on:
+          - db2
+
+#Docker Networks
+
+#Volumes
+volumes:
+    postgres-data-12:
